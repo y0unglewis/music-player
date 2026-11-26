@@ -12,13 +12,15 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+
 public class MyMusicService extends Service {
     private static final String TAG = "MyMusicService";
     private final IBinder binder = new LocalBinder();
     private boolean playing;
     private MediaPlayer player;
 
-    // LocalBinder theo mẫu trang 6 của bài giảng Services.
+    // Mẫu LocalBinder ở trang 6 của slide and4.
     public class LocalBinder extends Binder {
         public MyMusicService getService() {
             return MyMusicService.this;
@@ -48,10 +50,15 @@ public class MyMusicService extends Service {
             stopSelf(); // Dừng phần Started Service khi bấm Stop từ notification.
             return START_NOT_STICKY;
         }
-        // Foreground Service cần notification đang hoạt động.
-        startForeground(AppConstants.NOTIFICATION_ID, createNotification());
+        startMusicForeground();
         play();
         return START_NOT_STICKY; // Không tự khởi động lại nhạc khi hệ thống hủy Service.
+    }
+
+    // Mẫu Foreground Service ở trang 6: tạo Notification rồi startForeground().
+    private void startMusicForeground() {
+        Notification notification = createNotification();
+        startForeground(AppConstants.NOTIFICATION_ID, notification);
     }
 
     private void play() {
@@ -170,17 +177,17 @@ public class MyMusicService extends Service {
         Intent stopIntent = new Intent(this, MyMusicService.class).setAction(AppConstants.ACTION_STOP);
         PendingIntent stop = PendingIntent.getService(this, AppConstants.REQUEST_STOP_PLAYER, stopIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                ? new Notification.Builder(this, AppConstants.CHANNEL_ID) : new Notification.Builder(this);
-        return builder.setSmallIcon(R.drawable.ic_music)
+        // Dùng NotificationCompat.Builder giống code mẫu của cô.
+        Notification notification = new NotificationCompat.Builder(this, AppConstants.CHANNEL_ID)
                 .setContentTitle(getString(R.string.track_name))
                 .setContentText(getString(isPaused()
                         ? R.string.status_paused : R.string.notification_text))
+                .setSmallIcon(R.drawable.ic_music)
                 .setContentIntent(open)
                 .setOngoing(true)
-                .setPriority(Notification.PRIORITY_LOW)
-                .addAction(new Notification.Action.Builder(R.drawable.ic_stop,
-                        getString(R.string.stop), stop).build())
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .addAction(R.drawable.ic_stop, getString(R.string.stop), stop)
                 .build();
+        return notification;
     }
 }

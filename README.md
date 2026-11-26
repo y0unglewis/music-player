@@ -35,6 +35,7 @@ Xem [AGENTS.md](AGENTS.md) để nắm các quy tắc Java + XML, AppConstants, 
 - MyMusicService extends Service, không extends MediaPlayer. MediaPlayer là đối tượng hỗ trợ phát âm thanh.
 - play() gọi MediaPlayer.create(), setLooping(true), start(). stopPlayback() dừng và release() player; pause() giữ vị trí, resume() gọi start().
 - onBind() trả LocalBinder, Activity lấy đối tượng Service để điều khiển pause()/resume().
+- Theo mẫu trang 6 slide and4: dùng NotificationCompat.Builder, startForeground() và LocalBinder extends Binder. Xem [đối chiếu code mẫu](docs/BOUND_SERVICE.md).
 - Giữ startService() từ Activity đang hiển thị theo yêu cầu bài tập. Trong ứng dụng thực tế Android khuyến nghị startForegroundService() khi khởi chạy foreground service trên API 26+, rồi gọi startForeground().
 - MediaPlayer.create() chuẩn bị đồng bộ; với dữ liệu nặng nên dùng prepareAsync() hoặc giải pháp phù hợp.
 

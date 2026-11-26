@@ -2,6 +2,7 @@
 
 Áp dụng quy tắc giảng viên đã yêu cầu ở các bài thực hành trước, trong phạm vi bài Service.
 
+- Ưu tiên sử dụng các đoạn code mẫu trong slide của giảng viên (giữ tên API và cấu trúc chính), chỉ bổ sung phần cần thiết để chạy đúng yêu cầu. Với and4, trang 6: NotificationCompat.Builder, startForeground(), onBind() trả binder, LocalBinder extends Binder và getService() trả MyMusicService.this. Phân biệt code mẫu với phần tự triển khai; không thêm framework hoặc tính năng ngoài bài.
 - Java + XML; không tự chuyển sang Kotlin, Compose hoặc kiến trúc phức tạp.
 - onCreate() ngắn: gọi super, setContentView (Activity), rồi các hàm nhỏ như initViews(), setupListeners(). Tách xử lý theo chức năng, đặt tên dễ hiểu.
 - Dùng AppConstants.java cho action/key của Intent, key SharedPreferences (nếu có), ID và request code dùng chung. Truy cập trực tiếp AppConstants.* ở nơi gửi và nhận. Không hardcode key trong putExtra/get...Extra. Các constant Android SDK dùng trực tiếp, ví dụ Build.VERSION_CODES.O.

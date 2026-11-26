@@ -23,7 +23,8 @@ public class MainActivity extends Activity {
     private MyMusicService musicService;
     private boolean bindingRequested;
 
-    // Binder trả về đối tượng Service để Activity gọi trực tiếp pause()/resume().
+    // Nhận LocalBinder từ onBind() theo mẫu của cô.
+    // ServiceConnection là phần cần thêm để Activity sử dụng Binder.
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -107,8 +108,13 @@ public class MainActivity extends Activity {
         boolean connected = musicService != null;
         boolean playing = connected && musicService.isPlaying();
         boolean paused = connected && musicService.isPaused();
-        status.setText(playing ? R.string.status_playing
-                : paused ? R.string.status_paused : R.string.status_stopped);
+        if (playing) {
+            status.setText(R.string.status_playing);
+        } else if (paused) {
+            status.setText(R.string.status_paused);
+        } else {
+            status.setText(R.string.status_stopped);
+        }
         btnPauseResume.setText(paused ? R.string.resume : R.string.pause);
         setButtonEnabled(btnPlay, connected && !playing && !paused);
         setButtonEnabled(btnPauseResume, playing || paused);

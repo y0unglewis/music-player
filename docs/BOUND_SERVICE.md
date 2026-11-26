@@ -2,6 +2,34 @@
 
 Theo slide and4 (1).pdf, trang 3–4 mô tả Started và Bound Service, trang 6 minh họa LocalBinder. Slide không cung cấp logic pause/resume hoàn chỉnh; phần MediaPlayer dưới đây là áp dụng cho project.
 
+## Đối chiếu code mẫu trang 6
+
+Hai mẫu trong slide được giữ nguyên cấu trúc, thay MyService bằng MyMusicService và hằng số/chuỗi bằng AppConstants hoặc resources:
+
+```java
+@Override
+public IBinder onBind(Intent intent) {
+    return binder;
+}
+
+public class LocalBinder extends Binder {
+    public MyMusicService getService() {
+        return MyMusicService.this;
+    }
+}
+```
+
+```java
+Notification notification = new NotificationCompat.Builder(this, AppConstants.CHANNEL_ID)
+        .setContentTitle(getString(R.string.track_name))
+        .setContentText(getString(R.string.notification_text))
+        .setSmallIcon(R.drawable.ic_music)
+        .build();
+startForeground(AppConstants.NOTIFICATION_ID, notification);
+```
+
+Trong source, createNotification() tạo notification (có thêm nút Stop và trạng thái Pause); startMusicForeground() gọi startForeground(). AndroidX Core đã được khai báo từ bản sửa registerReceiver, không thêm thư viện mới. ServiceConnection, bind/unbind trong Activity, pause/resume và kiểm tra trạng thái là phần triển khai bổ sung, không phải code có sẵn trong slide.
+
 ## 1. MyMusicService.java
 - LocalBinder extends Binder: getService() trả chính MyMusicService.this.
 - onBind(Intent): trả binder, thay cho null.
