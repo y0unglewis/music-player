@@ -25,11 +25,14 @@ public class MainActivity extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             MyMusicService.LocalBinder binder = (MyMusicService.LocalBinder) service;
             musicService = binder.getService();
+            musicService.setStateListener(() -> updateButtonColor());
+            updateButtonColor();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             musicService = null;
+            updateButtonColor();
         }
     };
 
@@ -49,38 +52,41 @@ public class MainActivity extends Activity {
     }
 
     private void setupListeners() {
-        btnPlay.setOnClickListener(v -> {
-            playMusic();
-            updateButtonColor(btnPlay);
-        });
-        btnPause.setOnClickListener(v -> {
-            pauseMusic();
-            updateButtonColor(btnPause);
-        });
-        btnResume.setOnClickListener(v -> {
-            resumeMusic();
-            updateButtonColor(btnResume);
-        });
-        btnStop.setOnClickListener(v -> {
-            stopMusic();
-            updateButtonColor(btnStop);
-        });
+        btnPlay.setOnClickListener(v -> playMusic());
+        btnPause.setOnClickListener(v -> pauseMusic());
+        btnResume.setOnClickListener(v -> resumeMusic());
+        btnStop.setOnClickListener(v -> stopMusic());
     }
 
-    // Tô màu nút vừa bấm, các nút còn lại trở về màu mặc định.
-    private void updateButtonColor(Button selectedButton) {
-        Button[] buttons = {btnPlay, btnPause, btnResume, btnStop};
+    // Đổi màu theo trạng thái mà Service đã xử lý.
+    private void updateButtonColor() {
+        Button selectedButton = btnStop;
 
+        if (musicService != null) {
+            int state = musicService.getState();
+            if (state == AppConstants.STATE_PLAYING) {
+                selectedButton = btnPlay;
+            } else if (state == AppConstants.STATE_PAUSED) {
+                selectedButton = btnPause;
+            } else if (state == AppConstants.STATE_RESUMED) {
+                selectedButton = btnResume;
+            }
+        }
+
+        Button[] buttons = {btnPlay, btnPause, btnResume, btnStop};
         for (Button button : buttons) {
-            boolean selected = button == selectedButton;
-            int background = getColor(selected ? R.color.primary : R.color.surface);
-            int text = getColor(selected ? R.color.on_primary : R.color.text);
-            button.setBackgroundTintList(ColorStateList.valueOf(background));
-            button.setTextColor(text);
+            if (button == selectedButton) {
+                button.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.primary)));
+                button.setTextColor(getColor(R.color.on_primary));
+            } else {
+                button.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.surface)));
+                button.setTextColor(getColor(R.color.text));
+            }
         }
     }
 
     private void playMusic() {
+        if (musicService == null) return;
         Intent intent = new Intent(this, MyMusicService.class);
         startService(intent);
         requestNotificationPermission();
@@ -99,11 +105,11 @@ public class MainActivity extends Activity {
     }
 
     private void stopMusic() {
-        // Service còn bound nên dừng player trực tiếp trước stopService().
         if (musicService != null) {
+            // Service còn bound nên dừng player trước stopService().
             musicService.stop();
+            stopService(new Intent(this, MyMusicService.class));
         }
-        stopService(new Intent(this, MyMusicService.class));
     }
 
     @Override
@@ -124,6 +130,9 @@ public class MainActivity extends Activity {
     }
 
     private void disconnectService() {
+        if (musicService != null) {
+            musicService.setStateListener(null);
+        }
         if (bound) {
             unbindService(connection);
             bound = false;

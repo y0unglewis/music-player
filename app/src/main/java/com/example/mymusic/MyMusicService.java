@@ -16,6 +16,8 @@ public class MyMusicService extends Service {
 
     private MediaPlayer player;
     private final IBinder binder = new LocalBinder();
+    private int state = AppConstants.STATE_STOPPED;
+    private Runnable stateListener;
 
     // Mẫu Bound Service ở trang 6 của slide.
     @Override
@@ -26,6 +28,22 @@ public class MyMusicService extends Service {
     public class LocalBinder extends Binder {
         public MyMusicService getService() {
             return MyMusicService.this;
+        }
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setStateListener(Runnable listener) {
+        stateListener = listener;
+    }
+
+    // Báo cho Activity cập nhật màu sau khi phát, tạm dừng hoặc dừng nhạc.
+    private void changeState(int newState) {
+        state = newState;
+        if (stateListener != null) {
+            stateListener.run();
         }
     }
 
@@ -79,12 +97,14 @@ public class MyMusicService extends Service {
             return true;
         });
         player.start();
+        changeState(AppConstants.STATE_PLAYING);
     }
 
     // Tạm dừng nhưng không giải phóng player.
     public void pause() {
         if (player != null && player.isPlaying()) {
             player.pause();
+            changeState(AppConstants.STATE_PAUSED);
         }
     }
 
@@ -92,6 +112,7 @@ public class MyMusicService extends Service {
     public void resume() {
         if (player != null && !player.isPlaying()) {
             player.start();
+            changeState(AppConstants.STATE_RESUMED);
         }
     }
 
@@ -102,6 +123,7 @@ public class MyMusicService extends Service {
             player = null;
         }
         stopForeground(STOP_FOREGROUND_REMOVE);
+        changeState(AppConstants.STATE_STOPPED);
     }
 
     @Override

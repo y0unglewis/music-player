@@ -32,4 +32,4 @@ ServiceConnection nhận binder trong onServiceConnected và lấy musicService 
 
 Stop của Activity gọi stop() rồi stopService(), vì còn binding thì onDestroy() chưa nhất thiết chạy ngay. Started Service tiếp tục chạy khi Activity unbind, trừ khi bị dừng hoặc hệ thống hủy.
 
-UI bốn nút độc lập; không BroadcastReceiver, không trạng thái động. Kiểm thử build/emulator chưa thực hiện.
+UI bốn nút. Service lưu trạng thái bằng các hằng số trong AppConstants và gọi Runnable khi trạng thái đổi; Activity đọc getState() và đổi màu bằng if/else. Listener được gỡ khi unbind. Không dùng BroadcastReceiver. Kiểm thử: Pause/Resume trước Play không đổi màu; Play → Pause → Resume → Stop, sau đó Resume không đổi màu; rời Activity rồi quay lại vẫn hiện đúng trạng thái của Service. Kiểm thử build/emulator chưa thực hiện.
