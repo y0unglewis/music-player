@@ -18,7 +18,7 @@ Bài thực hành Java + XML: tạo Started Service phát nhạc bằng MediaPla
 | MyMusicService.java | extends Service, MediaPlayer, play(), stop(), onCreate(), onStartCommand(), onDestroy(), onBind() |
 | AndroidManifest.xml | Khai báo Activity, Service và quyền foreground media playback |
 | activity_main.xml | Giao diện Play/Stop |
-| res/raw/demo_music.wav | Nhạc không lời tổng hợp 16 giây, phát lặp |
+| res/raw/rain_sound.ogg | Bản ghi tiếng mưa thật, phát lặp |
 | res/drawable và res/values | Hình đĩa nhạc, icon, theme, chuỗi và màu |
 
 ## Note bài giảng
@@ -61,3 +61,7 @@ Service gọi startForeground() để hiển thị notification, play() để ph
 Chưa kiểm thử emulator tại thời điểm đưa source lên GitHub. Bài demo không triển khai audio focus, MediaSession, playlist, pause/seek hay khôi phục tiến trình.
 
 Tài liệu: https://developer.android.com/develop/background-work/services và https://developer.android.com/media/platform/mediaplayer/basics
+
+## Nguồn âm thanh
+
+`rain_sound.ogg` là bản ghi tiếng mưa `calpo_rain.ogg` của Pablo Jiménez Mateo, phát hành theo [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). [Nguồn và giấy phép](https://github.com/pablojimenezmateo/Rainyrainsounds#sound-licenses). File âm thanh giữ nguyên nội dung, chỉ đổi tên.

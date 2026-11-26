@@ -47,7 +47,7 @@ public class MyMusicService extends Service {
     private void play() {
         if (playing) return; // Không tạo nhiều MediaPlayer khi nhấn Play liên tục.
         try {
-            player = MediaPlayer.create(this, R.raw.demo_music);
+            player = MediaPlayer.create(this, R.raw.rain_sound);
             if (player == null) {
                 stopSelf();
                 return;
