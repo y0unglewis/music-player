@@ -1,12 +1,11 @@
 # Bound Service — Pause / Resume
 
-Theo slide and4 (1).pdf, trang 3–4 mô tả Started và Bound Service, trang 6 minh họa LocalBinder. Slide không cung cấp logic pause/resume hoàn chỉnh; phần MediaPlayer dưới đây là áp dụng cho project.
+Slide and4 (1).pdf trang 3–4: Started và Bound Service; trang 6: mẫu LocalBinder và NotificationCompat.Builder. Slide không có code Pause/Resume hoàn chỉnh.
 
-## Đối chiếu code mẫu trang 6
-
-Hai mẫu trong slide được giữ nguyên cấu trúc, thay MyService bằng MyMusicService và hằng số/chuỗi bằng AppConstants hoặc resources:
-
+## MyMusicService
 ```java
+private final IBinder binder = new LocalBinder();
+
 @Override
 public IBinder onBind(Intent intent) {
     return binder;
@@ -19,37 +18,18 @@ public class LocalBinder extends Binder {
 }
 ```
 
-```java
-Notification notification = new NotificationCompat.Builder(this, AppConstants.CHANNEL_ID)
-        .setContentTitle(getString(R.string.track_name))
-        .setContentText(getString(R.string.notification_text))
-        .setSmallIcon(R.drawable.ic_music)
-        .build();
-startForeground(AppConstants.NOTIFICATION_ID, notification);
-```
+Mẫu Foreground Service trang 6 cũng được giữ trong startMusicForeground(): tạo NotificationCompat.Builder rồi startForeground(AppConstants.NOTIFICATION_ID, notification). NotificationChannel và quyền notification bổ sung để tương thích Android mới.
 
-Trong source, createNotification() tạo notification (có thêm nút Stop và trạng thái Pause); startMusicForeground() gọi startForeground(). AndroidX Core đã được khai báo từ bản sửa registerReceiver, không thêm thư viện mới. ServiceConnection, bind/unbind trong Activity, pause/resume và kiểm tra trạng thái là phần triển khai bổ sung, không phải code có sẵn trong slide.
+## MainActivity
+ServiceConnection nhận binder trong onServiceConnected và lấy musicService = binder.getService(). bindService() trong onStart; unbindService() trong onStop. Play gọi startService(); Pause và Resume gọi musicService.pause() và musicService.resume() trực tiếp.
 
-## 1. MyMusicService.java
-- LocalBinder extends Binder: getService() trả chính MyMusicService.this.
-- onBind(Intent): trả binder, thay cho null.
-- pause(): player.pause(), giữ MediaPlayer và vị trí đang phát.
-- resume(): player.start(), phát tiếp.
-- stopPlayback(): stop(), release(), xóa notification và cập nhật trạng thái.
+## MediaPlayer
+- play(): create, setLooping, start.
+- pause(): pause, giữ player và vị trí.
+- resume(): start lại player cũ.
+- stop(): release, đặt player = null, xóa notification. release tự dừng âm thanh.
+- onDestroy(): stop để giải phóng tài nguyên.
 
-## 2. MainActivity.java
-- ServiceConnection: onServiceConnected nhận IBinder, ép về LocalBinder và lấy Service.
-- onStart: bindService(intent, connection, BIND_AUTO_CREATE).
-- onStop: unbindService(connection). Không dừng Started Service.
-- togglePauseResume: gọi trực tiếp musicService.pause() hoặc musicService.resume().
-- Play vẫn dùng startService(); Stop gọi stopPlayback() trước stopService(), vì còn binding thì onDestroy() chưa chắc chạy ngay.
-- ContextCompat.registerReceiver(..., RECEIVER_NOT_EXPORTED) sửa Lint flag và tương thích API cũ. AndroidX Core 1.13.1 khai báo trong app/build.gradle.
+Stop của Activity gọi stop() rồi stopService(), vì còn binding thì onDestroy() chưa nhất thiết chạy ngay. Started Service tiếp tục chạy khi Activity unbind, trừ khi bị dừng hoặc hệ thống hủy.
 
-## 3. Kiểm thử
-Play → Pause → Resume → Stop; Pause rồi Home và mở lại; Play rồi Home và mở lại; Stop từ notification lúc đang bound hoặc unbound; xoay màn hình khi đang phát; Logcat lọc MyMusicService. Chưa xác nhận build/emulator.
-
-## 4. Câu hỏi
-- Vì sao vừa startService vừa bindService? Started để tiếp tục chạy ngoài Activity; Bound để Activity gọi phương thức điều khiển.
-- Pause khác Stop thế nào? Pause giữ MediaPlayer và vị trí; Stop giải phóng và lần Play sau bắt đầu lại.
-- Khi unbind thì Service chết không? Chỉ khi không còn client và không còn trạng thái started.
-- Binder có tạo Background Thread không? Không. LocalBinder trong cùng process gọi trực tiếp trên luồng gọi.
+UI bốn nút độc lập; không BroadcastReceiver, không trạng thái động. Kiểm thử build/emulator chưa thực hiện.

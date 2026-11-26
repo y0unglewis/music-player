@@ -15,16 +15,6 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:accessibilityLiveRegion="polite"
-        android:text="@string/status_stopped"
-        android:textColor="@color/muted"
-        android:textSize="16sp" />
-
     <Button
         android:id="@+id/btnPlay"
         android:layout_width="match_parent"
@@ -34,10 +24,17 @@
         android:textAllCaps="false" />
 
     <Button
-        android:id="@+id/btnPauseResume"
+        android:id="@+id/btnPause"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/pause"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btnResume"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/resume"
         android:textAllCaps="false" />
 
     <Button
