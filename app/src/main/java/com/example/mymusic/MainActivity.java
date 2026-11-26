@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -48,10 +49,35 @@ public class MainActivity extends Activity {
     }
 
     private void setupListeners() {
-        btnPlay.setOnClickListener(v -> playMusic());
-        btnPause.setOnClickListener(v -> pauseMusic());
-        btnResume.setOnClickListener(v -> resumeMusic());
-        btnStop.setOnClickListener(v -> stopMusic());
+        btnPlay.setOnClickListener(v -> {
+            playMusic();
+            updateButtonColor(btnPlay);
+        });
+        btnPause.setOnClickListener(v -> {
+            pauseMusic();
+            updateButtonColor(btnPause);
+        });
+        btnResume.setOnClickListener(v -> {
+            resumeMusic();
+            updateButtonColor(btnResume);
+        });
+        btnStop.setOnClickListener(v -> {
+            stopMusic();
+            updateButtonColor(btnStop);
+        });
+    }
+
+    // Tô màu nút vừa bấm, các nút còn lại trở về màu mặc định.
+    private void updateButtonColor(Button selectedButton) {
+        Button[] buttons = {btnPlay, btnPause, btnResume, btnStop};
+
+        for (Button button : buttons) {
+            boolean selected = button == selectedButton;
+            int background = getColor(selected ? R.color.primary : R.color.surface);
+            int text = getColor(selected ? R.color.on_primary : R.color.text);
+            button.setBackgroundTintList(ColorStateList.valueOf(background));
+            button.setTextColor(text);
+        }
     }
 
     private void playMusic() {

@@ -18,7 +18,7 @@ Android 13+: cấp quyền notification nếu muốn thấy thông báo foregrou
 ## Luồng
 Play gọi startService(); onStartCommand() tạo foreground notification rồi phát âm thanh. Activity kết nối trong onStart và ngắt trong onStop. Pause/Resume gọi trực tiếp phương thức Service qua LocalBinder. Stop gọi musicService.stop() rồi stopService(), vì Service có thể vẫn còn bound. release() dừng và giải phóng MediaPlayer; lần Play sau tạo player mới.
 
-Không cần BroadcastReceiver, PendingIntent, nút notification, trạng thái UI động hay biến static cho playback. Notification chỉ minh họa Foreground Service theo slide. Không có putExtra vì không cần truyền dữ liệu. Các nút bấm không đổi trạng thái; Pause/Resume trước Play hoặc sau Stop không làm gì.
+Không cần BroadcastReceiver, PendingIntent, nút notification, đồng bộ trạng thái playback qua UI hay biến static cho playback. Notification chỉ minh họa Foreground Service theo slide. Không có putExtra vì không cần truyền dữ liệu. Nút vừa bấm đổi sang màu xanh sáng qua updateButtonColor() trong MainActivity; màu chỉ biểu thị thao tác gần nhất trên màn hình, không phải trạng thái MediaPlayer. Pause/Resume trước Play hoặc sau Stop không làm gì.
 
 ## Kiểm thử
 Play → Pause → Resume → Stop; Play lại; Home khi đang phát và quay lại; Home khi đang Pause và quay lại; bấm các nút trước Play; xoay màn hình.
