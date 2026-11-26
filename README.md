@@ -1,3 +1,63 @@
-# My Music — Android Service
+# My Music — Android Service thực hành
 
-Bài thực hành Android Java + XML: Started Service, MediaPlayer và Foreground Service.
+Bài thực hành Java + XML: tạo Started Service phát nhạc bằng MediaPlayer. Không cần API, Internet khi phát nhạc hoặc database.
+
+## Chạy project
+
+1. Clone repository: `git clone https://github.com/y0unglewis/music-player.git`.
+2. Android Studio > File > Open > thư mục music-player chứa settings.gradle.
+3. Cài SDK Platform 35, sử dụng Gradle JDK 17, Sync và Run app. Gradle Wrapper 8.9 đã có sẵn; AGP 8.7.3, minSdk 24, targetSdk 34.
+4. Windows: `gradlew.bat :app:assembleDebug`. Linux/macOS: `./gradlew :app:assembleDebug`.
+5. Android 13+: cấp quyền thông báo khi nhấn Play để thấy notification.
+
+## Các file quan trọng
+
+| File | Nội dung |
+|---|---|
+| MainActivity.java | Intent, startService(), stopService(), cập nhật UI |
+| MyMusicService.java | extends Service, MediaPlayer, play(), stop(), onCreate(), onStartCommand(), onDestroy(), onBind() |
+| AndroidManifest.xml | Khai báo Activity, Service và quyền foreground media playback |
+| activity_main.xml | Giao diện Play/Stop |
+| res/raw/demo_music.wav | Nhạc không lời tổng hợp 16 giây, phát lặp |
+| res/drawable và res/values | Hình đĩa nhạc, icon, theme, chuỗi và màu |
+
+## Note bài giảng
+
+- Service là Android component không có UI riêng, không mặc định chạy trên Background Thread.
+- Foreground Service có notification; Background Service không có notification foreground và chịu giới hạn từ Android 8.
+- startService(intent) -> onCreate() lần đầu -> onStartCommand() mỗi lần start -> RUNNING -> stopService(intent) hoặc stopSelf() -> onDestroy() khi dừng bình thường.
+- onStart() của Service đã deprecated. onStart() của Activity vẫn hợp lệ.
+- MyMusicService extends Service, không extends MediaPlayer. MediaPlayer là đối tượng hỗ trợ phát âm thanh.
+- play() gọi MediaPlayer.create(), setLooping(true), start(). stop() gọi stop() nếu đang phát rồi release().
+- onBind() trả null vì không dùng Bound Service.
+- Giữ startService() từ Activity đang hiển thị theo yêu cầu bài tập. Trong ứng dụng thực tế Android khuyến nghị startForegroundService() khi khởi chạy foreground service trên API 26+, rồi gọi startForeground().
+- MediaPlayer.create() chuẩn bị đồng bộ; với dữ liệu nặng nên dùng prepareAsync() hoặc giải pháp phù hợp.
+
+## Luồng thực hiện
+
+```java
+Intent intent = new Intent(this, MyMusicService.class);
+startService(intent);
+```
+
+Dừng:
+
+```java
+stopService(new Intent(this, MyMusicService.class));
+```
+
+Service gọi startForeground() để hiển thị notification, play() để phát nhạc. Khi dừng, onDestroy() gọi stop() và xóa notification. BroadcastReceiver đồng bộ giao diện khi trạng thái thay đổi. Biến static playing dùng trong cùng tiến trình, đủ cho bài thực hành.
+
+## Checklist kiểm thử trên thiết bị
+
+- [ ] Mở app: Đã dừng, Play sáng, Stop mờ.
+- [ ] Play: nghe nhạc, trạng thái Đang phát, notification xuất hiện nếu được cấp quyền.
+- [ ] Bấm Home: nhạc vẫn phát.
+- [ ] Quay lại app: trạng thái đúng; Stop dừng nhạc, xóa notification.
+- [ ] Play lại: không phát chồng.
+- [ ] Stop từ notification: đồng bộ UI.
+- [ ] Logcat lọc MyMusicService: thấy onCreate, onStartCommand, onDestroy.
+
+Chưa kiểm thử emulator tại thời điểm đưa source lên GitHub. Bài demo không triển khai audio focus, MediaSession, playlist, pause/seek hay khôi phục tiến trình.
+
+Tài liệu: https://developer.android.com/develop/background-work/services và https://developer.android.com/media/platform/mediaplayer/basics

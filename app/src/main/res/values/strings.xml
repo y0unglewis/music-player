@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">My Music</string>
+    <string name="eyebrow">M Y   M U S I C</string>
+    <string name="title">A little quiet.</string>
+    <string name="track_name">Quiet Hours</string>
+    <string name="subtitle">Instrumental • Offline demo</string>
+    <string name="status_stopped">●  Đã dừng</string>
+    <string name="status_playing">●  Đang phát nhạc</string>
+    <string name="play">▶  Play</string>
+    <string name="stop">■  Stop</string>
+    <string name="hint">Nhạc tiếp tục phát khi bạn rời màn hình. Nhấn Stop để kết thúc Service.</string>
+    <string name="art_desc">Minh họa đĩa nhạc</string>
+    <string name="channel_name">Phát nhạc</string>
+    <string name="notification_text">My Music đang phát nhạc</string>
+</resources>
