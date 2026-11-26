@@ -65,10 +65,22 @@
                 android:textSize="16sp" />
 
             <Button
+                android:id="@+id/btnPauseResume"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_stop"
+                android:text="@string/pause"
+                android:textAllCaps="false"
+                android:textColor="@color/text"
+                android:textSize="14sp" />
+
+            <Button
                 android:id="@+id/btnStop"
                 android:layout_width="0dp"
                 android:layout_height="56dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_stop"
                 android:text="@string/stop"

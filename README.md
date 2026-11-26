@@ -1,6 +1,6 @@
 # My Music — Android Service thực hành
 
-Bài thực hành Java + XML: tạo Started Service phát nhạc bằng MediaPlayer. Không cần API, Internet khi phát nhạc hoặc database.
+Bài thực hành Java + XML: kết hợp Started Service và Bound Service phát nhạc bằng MediaPlayer. Không cần API, Internet khi phát nhạc hoặc database.
 
 ## Chạy project
 
@@ -14,11 +14,11 @@ Bài thực hành Java + XML: tạo Started Service phát nhạc bằng MediaPla
 
 | File | Nội dung |
 |---|---|
-| MainActivity.java | Intent, startService(), stopService(), cập nhật UI |
+| MainActivity.java | Intent, startService(), stopService(), bindService(), unbindService(), ServiceConnection và UI |
 | AppConstants.java | Action của Intent, channel ID, notification ID, request code và alpha dùng chung |
-| MyMusicService.java | extends Service, MediaPlayer, play(), stop(), onCreate(), onStartCommand(), onDestroy(), onBind() |
+| MyMusicService.java | extends Service, MediaPlayer, play(), pause(), resume(), stopPlayback(), onCreate(), onStartCommand(), onDestroy(), onBind() |
 | AndroidManifest.xml | Khai báo Activity, Service và quyền foreground media playback |
-| activity_main.xml | Giao diện Play/Stop |
+| activity_main.xml | Giao diện Play/Pause/Resume/Stop |
 | res/raw/rain_sound.ogg | Bản ghi tiếng mưa thật, phát lặp |
 | res/drawable và res/values | Hình đĩa nhạc, icon, theme, chuỗi và màu |
 
@@ -33,8 +33,8 @@ Xem [AGENTS.md](AGENTS.md) để nắm các quy tắc Java + XML, AppConstants, 
 - startService(intent) -> onCreate() lần đầu -> onStartCommand() mỗi lần start -> RUNNING -> stopService(intent) hoặc stopSelf() -> onDestroy() khi dừng bình thường.
 - onStart() của Service đã deprecated. onStart() của Activity vẫn hợp lệ.
 - MyMusicService extends Service, không extends MediaPlayer. MediaPlayer là đối tượng hỗ trợ phát âm thanh.
-- play() gọi MediaPlayer.create(), setLooping(true), start(). stop() gọi stop() nếu đang phát rồi release().
-- onBind() trả null vì không dùng Bound Service.
+- play() gọi MediaPlayer.create(), setLooping(true), start(). stopPlayback() dừng và release() player; pause() giữ vị trí, resume() gọi start().
+- onBind() trả LocalBinder, Activity lấy đối tượng Service để điều khiển pause()/resume().
 - Giữ startService() từ Activity đang hiển thị theo yêu cầu bài tập. Trong ứng dụng thực tế Android khuyến nghị startForegroundService() khi khởi chạy foreground service trên API 26+, rồi gọi startForeground().
 - MediaPlayer.create() chuẩn bị đồng bộ; với dữ liệu nặng nên dùng prepareAsync() hoặc giải pháp phù hợp.
 
@@ -51,19 +51,21 @@ Dừng:
 stopService(new Intent(this, MyMusicService.class));
 ```
 
-Service gọi startForeground() để hiển thị notification, play() để phát nhạc. Khi dừng, onDestroy() gọi stop() và xóa notification. BroadcastReceiver đồng bộ giao diện khi trạng thái thay đổi. Biến static playing dùng trong cùng tiến trình, đủ cho bài thực hành.
+Service gọi startForeground() và play(). Activity bind trong onStart() và unbind trong onStop(); Started Service vẫn phát khi Activity rời màn hình. Pause/Resume gọi trực tiếp qua LocalBinder. Stop gọi stopPlayback() rồi stopService(), vì Service có thể vẫn còn bound và chưa chạy onDestroy(). BroadcastReceiver dùng ContextCompat.RECEIVER_NOT_EXPORTED để cập nhật UI; không dùng biến static cho trạng thái phát.
 
 ## Checklist kiểm thử trên thiết bị
 
 - [ ] Mở app: Đã dừng, Play sáng, Stop mờ.
 - [ ] Play: nghe nhạc, trạng thái Đang phát, notification xuất hiện nếu được cấp quyền.
-- [ ] Bấm Home: nhạc vẫn phát.
+- [ ] Pause: âm thanh dừng tạm, trạng thái Tạm dừng, nút đổi thành Resume.
+- [ ] Resume: phát tiếp từ vị trí cũ, nút đổi thành Pause.
+- [ ] Bấm Home: nhạc vẫn phát nếu đang Play; vẫn tạm dừng nếu đang Pause.
 - [ ] Quay lại app: trạng thái đúng; Stop dừng nhạc, xóa notification.
 - [ ] Play lại: không phát chồng.
 - [ ] Stop từ notification: đồng bộ UI.
-- [ ] Logcat lọc MyMusicService: thấy onCreate, onStartCommand, onDestroy.
+- [ ] Logcat lọc MyMusicService: thấy onCreate, onBind, onStartCommand, onUnbind, onDestroy.
 
-Chưa kiểm thử emulator tại thời điểm đưa source lên GitHub. Bài demo không triển khai audio focus, MediaSession, playlist, pause/seek hay khôi phục tiến trình.
+Chưa kiểm thử emulator tại thời điểm đưa source lên GitHub. Bài demo không triển khai audio focus, MediaSession, playlist, seek hay khôi phục tiến trình.
 
 Tài liệu: https://developer.android.com/develop/background-work/services và https://developer.android.com/media/platform/mediaplayer/basics
 
