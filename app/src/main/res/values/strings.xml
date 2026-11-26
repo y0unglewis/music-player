@@ -5,6 +5,7 @@
     <string name="pause">Pause</string>
     <string name="resume">Resume</string>
     <string name="stop">Stop</string>
+    <string name="art_desc">Hình đĩa nhạc</string>
     <string name="channel_name">Phát nhạc</string>
     <string name="notification_text">Music Service đang chạy</string>
 </resources>

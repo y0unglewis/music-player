@@ -12,7 +12,7 @@ Android 13+: cấp quyền notification nếu muốn thấy thông báo foregrou
 - MyMusicService.java: LocalBinder, MediaPlayer, onCreate, onStartCommand, onBind, onDestroy và NotificationCompat.Builder.
 - AppConstants.java: channel ID, notification ID, request code.
 - AndroidManifest.xml: khai báo Service và quyền foreground.
-- activity_main.xml: LinearLayout, TextView, Button mặc định.
+- activity_main.xml: LinearLayout, TextView, ImageView và bốn Button mặc định, theme xanh lá tối.
 - res/raw/rain_sound.ogg: tiếng mưa, phát lặp.
 
 ## Luồng
