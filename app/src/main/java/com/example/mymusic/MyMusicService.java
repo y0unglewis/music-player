@@ -13,10 +13,6 @@ import android.util.Log;
 
 public class MyMusicService extends Service {
     private static final String TAG = "MyMusicService";
-    private static final String CHANNEL_ID = "music_playback";
-    private static final int NOTIFICATION_ID = 1;
-    private static final String ACTION_STOP = "com.example.mymusic.STOP";
-    public static final String ACTION_STATE_CHANGED = "com.example.mymusic.STATE_CHANGED";
     private static boolean playing = false;
     private MediaPlayer player;
 
@@ -34,12 +30,12 @@ public class MyMusicService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-        if (intent != null && ACTION_STOP.equals(intent.getAction())) {
+        if (intent != null && AppConstants.ACTION_STOP.equals(intent.getAction())) {
             stopSelf(); // Dừng Service khi bấm Stop từ notification.
             return START_NOT_STICKY;
         }
         // Foreground Service cần notification đang hoạt động.
-        startForeground(NOTIFICATION_ID, createNotification());
+        startForeground(AppConstants.NOTIFICATION_ID, createNotification());
         play();
         return START_NOT_STICKY; // Không tự khởi động lại nhạc khi hệ thống hủy Service.
     }
@@ -95,14 +91,14 @@ public class MyMusicService extends Service {
     }
 
     private void notifyStateChanged() {
-        Intent intent = new Intent(ACTION_STATE_CHANGED);
+        Intent intent = new Intent(AppConstants.ACTION_STATE_CHANGED);
         intent.setPackage(getPackageName());
         sendBroadcast(intent);
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(AppConstants.CHANNEL_ID,
                     getString(R.string.channel_name), NotificationManager.IMPORTANCE_LOW);
             getSystemService(NotificationManager.class).createNotificationChannel(channel);
         }
@@ -111,13 +107,13 @@ public class MyMusicService extends Service {
     private Notification createNotification() {
         Intent openIntent = new Intent(this, MainActivity.class);
         openIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent open = PendingIntent.getActivity(this, 0, openIntent,
+        PendingIntent open = PendingIntent.getActivity(this, AppConstants.REQUEST_OPEN_PLAYER, openIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        Intent stopIntent = new Intent(this, MyMusicService.class).setAction(ACTION_STOP);
-        PendingIntent stop = PendingIntent.getService(this, 1, stopIntent,
+        Intent stopIntent = new Intent(this, MyMusicService.class).setAction(AppConstants.ACTION_STOP);
+        PendingIntent stop = PendingIntent.getService(this, AppConstants.REQUEST_STOP_PLAYER, stopIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        Notification.Builder builder = Build.VERSION.SDK_INT >= 26
-                ? new Notification.Builder(this, CHANNEL_ID) : new Notification.Builder(this);
+        Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                ? new Notification.Builder(this, AppConstants.CHANNEL_ID) : new Notification.Builder(this);
         return builder.setSmallIcon(R.drawable.ic_music)
                 .setContentTitle(getString(R.string.track_name))
                 .setContentText(getString(R.string.notification_text))

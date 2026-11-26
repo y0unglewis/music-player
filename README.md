@@ -15,11 +15,16 @@ Bài thực hành Java + XML: tạo Started Service phát nhạc bằng MediaPla
 | File | Nội dung |
 |---|---|
 | MainActivity.java | Intent, startService(), stopService(), cập nhật UI |
+| AppConstants.java | Action của Intent, channel ID, notification ID, request code và alpha dùng chung |
 | MyMusicService.java | extends Service, MediaPlayer, play(), stop(), onCreate(), onStartCommand(), onDestroy(), onBind() |
 | AndroidManifest.xml | Khai báo Activity, Service và quyền foreground media playback |
 | activity_main.xml | Giao diện Play/Stop |
 | res/raw/rain_sound.ogg | Bản ghi tiếng mưa thật, phát lặp |
 | res/drawable và res/values | Hình đĩa nhạc, icon, theme, chuỗi và màu |
+
+## Quy ước code
+
+Xem [AGENTS.md](AGENTS.md) để nắm các quy tắc Java + XML, AppConstants, onCreate và Intent áp dụng cho bài thực hành. Bài này chỉ gửi lệnh cho Service, không có đối tượng dữ liệu cần truyền qua putExtra.
 
 ## Note bài giảng
 

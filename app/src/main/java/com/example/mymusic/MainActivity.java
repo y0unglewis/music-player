@@ -47,10 +47,16 @@ public class MainActivity extends Activity {
         // Intent chỉ định Service cần khởi chạy, giống cách mở Activity.
         Intent intent = new Intent(this, MyMusicService.class);
         startService(intent); // Gọi từ Activity đang hiển thị, đúng yêu cầu bài tập.
-        if (Build.VERSION.SDK_INT >= 33 &&
+        requestNotificationPermission();
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                 checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
                         != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+            requestPermissions(
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    AppConstants.REQUEST_NOTIFICATION_PERMISSION);
         }
     }
 
@@ -64,20 +70,24 @@ public class MainActivity extends Activity {
         status.setText(playing ? R.string.status_playing : R.string.status_stopped);
         btnPlay.setEnabled(!playing);
         btnStop.setEnabled(playing);
-        btnPlay.setAlpha(playing ? 0.45f : 1f);
-        btnStop.setAlpha(playing ? 1f : 0.45f);
+        btnPlay.setAlpha(playing ? AppConstants.ALPHA_DISABLED : AppConstants.ALPHA_ENABLED);
+        btnStop.setAlpha(playing ? AppConstants.ALPHA_ENABLED : AppConstants.ALPHA_DISABLED);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        IntentFilter filter = new IntentFilter(MyMusicService.ACTION_STATE_CHANGED);
-        if (Build.VERSION.SDK_INT >= 33) {
+        registerMusicReceiver();
+        updateUI();
+    }
+
+    private void registerMusicReceiver() {
+        IntentFilter filter = new IntentFilter(AppConstants.ACTION_STATE_CHANGED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(musicReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         } else {
             registerReceiver(musicReceiver, filter);
         }
-        updateUI();
     }
 
     @Override
